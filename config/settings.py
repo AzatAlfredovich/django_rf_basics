@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -25,11 +26,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    #DRF
+    # DRF
     "rest_framework",
-
-    #Our apps
+    # Our apps
     "materials",
     "users",
 ]
@@ -115,3 +114,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR / "media")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "users.User"
