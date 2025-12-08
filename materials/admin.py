@@ -16,6 +16,7 @@ class CourseAdmin(admin.ModelAdmin):
         "name",
     )
 
+
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
     list_display = (
