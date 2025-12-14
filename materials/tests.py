@@ -94,7 +94,7 @@ class CourseTestCase(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Lesson.objects.all().count(), 1)
+        self.assertEqual(Course.objects.all().count(), 2)
 
     def test_course_update(self):
         url = reverse("materials:course-detail", args=(self.course.pk,))
