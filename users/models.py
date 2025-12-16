@@ -83,3 +83,41 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Платёж за курс или урок от {self.user} на {self.amount} руб."
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        help_text="Пользователь, подписанный на обновления курса",
+        related_name='subscriptions'
+    )
+
+    course = models.ForeignKey(
+        "materials.Course",
+        on_delete=models.CASCADE,
+        verbose_name="Курс",
+        help_text="Курс, на обновления которого подписался пользователь",
+        related_name='subscribers'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата подписки",
+        help_text="Когда пользователь подписался на курс"
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активность подписки",
+        help_text="Активна ли подписка (можно отключать без удаления)"
+    )
+
+    class Meta:
+        verbose_name = "Подписка на курс"
+        verbose_name_plural = "Подписки на курсы"
+        unique_together = ('user', 'course')
+
+    def __str__(self):
+        return f"Подписка {self.user} на курс {self.course}"
