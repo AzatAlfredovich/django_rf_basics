@@ -63,9 +63,7 @@ class Payment(models.Model):
         help_text="Урок, за который произведена оплата",
     )
 
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    amount = models.PositiveIntegerField(
         verbose_name="Сумма оплаты",
         help_text="Сумма платежа в рублях",
     )
@@ -75,6 +73,13 @@ class Payment(models.Model):
         choices=PAYMENT_METHOD_CHOICES,
         verbose_name="Способ оплаты",
         help_text="Способ совершения платежа",
+    )
+    payment_link = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Ссылка на оплату",
+        help_text="Ссылка на оплату",
     )
 
     class Meta:
@@ -91,7 +96,7 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
         help_text="Пользователь, подписанный на обновления курса",
-        related_name='subscriptions'
+        related_name="subscriptions",
     )
 
     course = models.ForeignKey(
@@ -99,25 +104,25 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Курс",
         help_text="Курс, на обновления которого подписался пользователь",
-        related_name='subscribers'
+        related_name="subscribers",
     )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата подписки",
-        help_text="Когда пользователь подписался на курс"
+        help_text="Когда пользователь подписался на курс",
     )
 
     is_active = models.BooleanField(
         default=True,
         verbose_name="Активность подписки",
-        help_text="Активна ли подписка (можно отключать без удаления)"
+        help_text="Активна ли подписка (можно отключать без удаления)",
     )
 
     class Meta:
         verbose_name = "Подписка на курс"
         verbose_name_plural = "Подписки на курсы"
-        unique_together = ('user', 'course')
+        unique_together = ("user", "course")
 
     def __str__(self):
         return f"Подписка {self.user} на курс {self.course}"
