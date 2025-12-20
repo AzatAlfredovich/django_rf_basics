@@ -11,7 +11,9 @@ class LessonTestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create(email="example@mail.ru")
         self.course = Course.objects.create(name="Тестовый курс")
-        self.lesson = Lesson.objects.create(name="Тестовый урок", course=self.course, owner=self.user)
+        self.lesson = Lesson.objects.create(
+            name="Тестовый урок", course=self.course, owner=self.user
+        )
         self.client.force_authenticate(user=self.user)
 
     def test_lesson_retrieve(self):
@@ -57,25 +59,27 @@ class LessonTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 2. Проверяем пагинацию
-        self.assertEqual(response.data['count'], 1)
-        self.assertIsNone(response.data['next'])
-        self.assertIsNone(response.data['previous'])
+        self.assertEqual(response.data["count"], 1)
+        self.assertIsNone(response.data["next"])
+        self.assertIsNone(response.data["previous"])
 
         # 3. Проверяем содержимое урока
-        lesson = response.data['results'][0]
-        self.assertEqual(lesson['name'], 'Тестовый урок')
-        self.assertEqual(lesson['course'], self.course.id)
-        self.assertEqual(lesson['owner'], self.user.id)
-        self.assertIsNone(lesson['image'])
-        self.assertIsNone(lesson['video'])
+        lesson = response.data["results"][0]
+        self.assertEqual(lesson["name"], "Тестовый урок")
+        self.assertEqual(lesson["course"], self.course.id)
+        self.assertEqual(lesson["owner"], self.user.id)
+        self.assertIsNone(lesson["image"])
+        self.assertIsNone(lesson["video"])
 
 
 class CourseTestCase(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(email="example@mail.ru")
-        self.course = Course.objects.create(name="Тестовый курс", owner = self.user)
-        self.lesson = Lesson.objects.create(name="Тестовый урок", course=self.course, owner=self.user)
+        self.course = Course.objects.create(name="Тестовый курс", owner=self.user)
+        self.lesson = Lesson.objects.create(
+            name="Тестовый урок", course=self.course, owner=self.user
+        )
         self.client.force_authenticate(user=self.user)
 
     def test_course_retrieve(self):
@@ -120,11 +124,11 @@ class CourseTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 2. Проверяем пагинацию
-        self.assertEqual(response.data['count'], 1)
-        self.assertIsNone(response.data['next'])
-        self.assertIsNone(response.data['previous'])
+        self.assertEqual(response.data["count"], 1)
+        self.assertIsNone(response.data["next"])
+        self.assertIsNone(response.data["previous"])
 
         # 3. Проверяем содержимое курса
-        course = response.data['results'][0]
-        self.assertEqual(course['name'], 'Тестовый курс')
-        self.assertEqual(course['owner'], self.user.id)
+        course = response.data["results"][0]
+        self.assertEqual(course["name"], "Тестовый курс")
+        self.assertEqual(course["owner"], self.user.id)

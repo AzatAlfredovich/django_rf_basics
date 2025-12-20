@@ -9,13 +9,12 @@ from users.models import Subscription
 
 class LessonSerializer(ModelSerializer):
     video = serializers.URLField(
-        required=False,
-        allow_blank=True,
-        validators=[YouTubeLinkValidator()]
+        required=False, allow_blank=True, validators=[YouTubeLinkValidator()]
     )
+
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'description', 'image', 'course', 'owner', 'video']
+        fields = ["id", "name", "description", "image", "course", "owner", "video"]
 
 
 class CourseSerializer(ModelSerializer):
@@ -33,16 +32,21 @@ class CourseDetailSerializer(ModelSerializer):
         return Lesson.objects.filter(course=instance).count()
 
     def get_is_subscribed(self, instance):
-        request = self.context.get('request')
+        request = self.context.get("request")
         # Проверяем, есть ли активный запрос и авторизованный пользователь
         if not request or not request.user.is_authenticated:
             return False
         return Subscription.objects.filter(
-            user=request.user,
-            course=instance,
-            is_active=True
+            user=request.user, course=instance, is_active=True
         ).exists()
 
     class Meta:
         model = Course
-        fields = ("name", "image", "description", "lessons_count", "lessons","is_subscribed",)
+        fields = (
+            "name",
+            "image",
+            "description",
+            "lessons_count",
+            "lessons",
+            "is_subscribed",
+        )

@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -7,8 +8,13 @@ from rest_framework.views import APIView
 
 from materials.models import Course
 from materials.serializers import CourseDetailSerializer
-from users.models import Payment, User, Subscription
+from users.models import Payment, Subscription, User
 from users.serializers import PaymentSerializer, UserSerializer
+from users.services import (
+    create_stripe_price,
+    create_stripe_product,
+    create_stripe_session,
+)
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -41,27 +47,45 @@ class PaymentListAPIView(ListAPIView):
     )
     ordering_fields = ("payment_date",)
 
+
+class PaymentCreateAPIView(CreateAPIView):
+    serializer_class = PaymentSerializer
+    queryset = Payment.objects.all()
+
+    def perform_create(self, serializer):
+        payment = serializer.save(user=self.request.user)
+        if payment.lesson:
+            product_name = payment.lesson.name
+        elif payment.course:
+            product_name = payment.course.name
+        else:
+            raise ValidationError(
+                {"non_field_errors": ["Необходимо указать урок или курс"]}
+            )
+        product = create_stripe_product(product_name=product_name)
+        price = create_stripe_price(amount=payment.amount, product_id=product.id)
+        payment_link = create_stripe_session(price)
+        payment.payment_link = payment_link
+        payment.save()
+
+
 class ManageSubscriptionAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         user = request.user
-        course_id = request.data.get('course_id')  # Получаем ID курса из тела запроса
+        course_id = request.data.get("course_id")  # Получаем ID курса из тела запроса
 
         if not course_id:
             return Response(
-                {"error": "course_id обязателен"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "course_id обязателен"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         # Получаем курс
         course = get_object_or_404(Course, id=course_id)
 
         # Ищем существующую подписку
-        subscription = Subscription.objects.filter(
-            user=user,
-            course=course
-        ).first()
+        subscription = Subscription.objects.filter(user=user, course=course).first()
 
         if subscription:
             # Если подписка есть — удаляем (или деактивируем)
@@ -70,21 +94,17 @@ class ManageSubscriptionAPIView(APIView):
             is_subscribed = False
         else:
             # Если подписки нет — создаём
-            Subscription.objects.create(
-                user=user,
-                course=course,
-                is_active=True
-            )
+            Subscription.objects.create(user=user, course=course, is_active=True)
             message = "Подписка добавлена"
             is_subscribed = True
 
         # Возвращаем данные курса с обновлённым флагом подписки
-        serializer = CourseDetailSerializer(
-            course,
-            context={'request': request}
+        serializer = CourseDetailSerializer(course, context={"request": request})
+        return Response(
+            {
+                "message": message,
+                "is_subscribed": is_subscribed,
+                "course": serializer.data,
+            },
+            status=status.HTTP_200_OK,
         )
-        return Response({
-            "message": message,
-            "is_subscribed": is_subscribed,
-            "course": serializer.data
-        }, status=status.HTTP_200_OK)
