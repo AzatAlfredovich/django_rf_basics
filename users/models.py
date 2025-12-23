@@ -96,7 +96,7 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
         help_text="Пользователь, подписанный на обновления курса",
-        related_name="subscriptions",
+        related_name="subscribers",
     )
 
     course = models.ForeignKey(
@@ -104,7 +104,7 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Курс",
         help_text="Курс, на обновления которого подписался пользователь",
-        related_name="subscribers",
+        related_name="subscriptions",
     )
 
     created_at = models.DateTimeField(

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 from users.models import User
 
@@ -31,6 +31,12 @@ class Course(models.Model):
         blank=True,
         verbose_name="Владелец",
         help_text="Укажите владельца курса",
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Дата последнего обновления",
+        help_text="Дата и время последнего изменения курса (включая связанные уроки)",
     )
 
     class Meta:
@@ -93,3 +99,16 @@ class Lesson(models.Model):
 
     def __str__(self):
         return f"Урок '{self.name}'"
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if self.course is not None:
+                self.course.save(update_fields=['updated_at'])
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            course_instance = self.course
+            super().delete(*args, **kwargs)
+            if course_instance is not None:
+                course_instance.save(update_fields=['updated_at'])
