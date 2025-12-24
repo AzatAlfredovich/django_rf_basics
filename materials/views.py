@@ -15,6 +15,7 @@ from materials.serializers import (
     CourseSerializer,
     LessonSerializer,
 )
+from materials.tasks import send_course_update_notification
 from users.permissions import IsModerator, IsOwner
 
 
@@ -31,6 +32,21 @@ class CourseViewSet(ModelViewSet):
         course = serializer.save()
         course.owner = self.request.user
         course.save()
+
+    def perform_update(self, serializer):
+        """
+        Сохраняет изменения курса и запускает рассылку подписчикам
+        """
+        # Сохраняем обновлённый курс
+        updated_course = serializer.save()
+
+        # Формируем общий текст уведомления
+        update_details = "В курс внесены обновления. Проверьте новые материалы!"
+
+        # Запускаем асинхронную рассылку
+        send_course_update_notification.delay(
+            course_id=updated_course.id
+        )
 
     def get_permissions(self):
         if self.action == "create":
