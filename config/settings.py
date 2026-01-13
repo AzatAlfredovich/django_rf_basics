@@ -161,3 +161,10 @@ CELERY_BEAT_SCHEDULE = {
 
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+    }
+}
