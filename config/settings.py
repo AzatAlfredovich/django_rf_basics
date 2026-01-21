@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -153,9 +154,9 @@ CELERY_RESULT_BACKEND = os.getenv("LOCATION")
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
-    'block_inactive_users': {
-        'task': 'users.tasks.block_inactive_users',  # Путь к задаче
-        'schedule': timedelta(days=1),  # Расписание выполнения задачи
+    "block_inactive_users": {
+        "task": "users.tasks.block_inactive_users",  # Путь к задаче
+        "schedule": timedelta(days=1),  # Расписание выполнения задачи
     },
 }
 
@@ -168,3 +169,11 @@ CACHES = {
         "LOCATION": "redis://redis:6379/1",
     }
 }
+
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "test_db_sqlite3",
+        }
+    }

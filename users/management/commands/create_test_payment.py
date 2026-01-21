@@ -99,5 +99,5 @@ class Command(BaseCommand):
         self.stdout.write("\nСводка:")
         self.stdout.write(f"  Пользователь: {test_user.email} (id={test_user.id})")
         self.stdout.write(f"  Курс: {course.name} (id={course.id})")
-        self.stdout.write(f"  Уроки: {[l.name for l in lessons]}")
+        self.stdout.write(f"  Уроки: {[lesson.name for lesson in lessons]}")
         self.stdout.write(f"  Платежи: {len(payments)} записей в таблице Payment")

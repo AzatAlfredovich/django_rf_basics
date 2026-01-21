@@ -24,10 +24,7 @@ def send_course_update_notification(course_id):
 
     # Сбор email активных подписчиков
     subscribers = Subscription.objects.filter(course=course, is_active=True)
-    emails = [
-        s.user.email for s in subscribers
-        if s.user.email and '@' in s.user.email
-    ]
+    emails = [s.user.email for s in subscribers if s.user.email and "@" in s.user.email]
 
     if not emails:
         return  # Нет адресов для отправки
@@ -45,5 +42,5 @@ def send_course_update_notification(course_id):
         message=message,
         from_email="notification@yandex.ru",
         recipient_list=emails,
-        fail_silently=False
+        fail_silently=False,
     )

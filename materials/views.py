@@ -44,9 +44,7 @@ class CourseViewSet(ModelViewSet):
         update_details = "В курс внесены обновления. Проверьте новые материалы!"
 
         # Запускаем асинхронную рассылку
-        send_course_update_notification.delay(
-            course_id=updated_course.id
-        )
+        send_course_update_notification.delay(course_id=updated_course.id)
 
     def get_permissions(self):
         if self.action == "create":
