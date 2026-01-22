@@ -122,5 +122,7 @@ jobs:
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/course_materials:${{ github.sha }}
           docker stop course_materials || true
           docker rm course_materials || true
-          docker run -d --name course_materials -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/course_materials:${{ github.sha }}
+          docker run -d --name course_materials -p 80:8000 \
+          -e SECRET_KEY=${SECRET_KEY} \
+          ${{ secrets.DOCKER_HUB_USERNAME }}/course_materials:${{ github.sha }}
           EOF
