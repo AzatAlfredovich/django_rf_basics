@@ -44,11 +44,21 @@ jobs:
       - name: Run migrations
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          NAME: ${{ secrets.DB_NAME }}
+          USER: ${{ secrets.DB_USER }}
+          PASSWORD: ${{ secrets.DB_PASSWORD }}
+          HOST: localhost
+          PORT: "5432"
         run: python manage.py migrate
 
       - name: Run tests
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          NAME: ${{ secrets.DB_NAME }}
+          USER: ${{ secrets.DB_USER }}
+          PASSWORD: ${{ secrets.DB_PASSWORD }}
+          HOST: localhost
+          PORT: "5432"
         run: python manage.py test
 
   build:
