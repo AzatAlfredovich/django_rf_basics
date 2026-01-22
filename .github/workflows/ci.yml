@@ -115,6 +115,8 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Deploy to Server
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/course_materials:${{ github.sha }}
