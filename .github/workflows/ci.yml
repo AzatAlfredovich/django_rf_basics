@@ -119,10 +119,21 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          
+          export SECRET_KEY='${{ secrets.SECRET_KEY }}'
+          export DB_NAME='${{ secrets.DB_NAME }}'
+          export DB_USER='${{ secrets.DB_USER }}'
+          export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
+          export DB_HOST='${{ secrets.DB_HOST }}'
+          
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/course_materials:${{ github.sha }}
           docker stop course_materials || true
           docker rm course_materials || true
           docker run -d --name course_materials -p 80:8000 \
           -e SECRET_KEY=${SECRET_KEY} \
+          -e DB_NAME="$DB_NAME" \
+          -e DB_USER="$DB_USER" \
+          -e DB_PASSWORD="$DB_PASSWORD" \
+          -e DB_HOST="$DB_HOST" \
           ${{ secrets.DOCKER_HUB_USERNAME }}/course_materials:${{ github.sha }}
           EOF
