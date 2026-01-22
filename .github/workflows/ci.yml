@@ -36,7 +36,7 @@ jobs:
         ports:
           - 5432/tcp  # ← открыт внутри сети CI
         options: >-
-          --health-cmd pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+          --health-cmd "pg_isready -h localhost -p 5432 -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
