@@ -102,7 +102,7 @@ class CourseTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Course.objects.all().count(), 2)
 
-    @patch('materials.tasks.send_course_update_notification.delay')
+    @patch("materials.tasks.send_course_update_notification.delay")
     def test_course_update(self, mock_delay):
         url = reverse("materials:course-detail", args=(self.course.pk,))
         data = {
