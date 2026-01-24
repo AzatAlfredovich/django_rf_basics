@@ -124,7 +124,7 @@ USE_L10N = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = "static/"#убрал слеэш в начале
+STATIC_URL = "static/"  # убрал слеэш в начале
 STATICFILES_DIRS = [BASE_DIR / "static"]
 # STATIC_ROOT = BASE_DIR / "staticfiles"
 
