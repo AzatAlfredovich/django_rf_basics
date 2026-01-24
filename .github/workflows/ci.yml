@@ -138,6 +138,7 @@ jobs:
           docker stop course_materials || true
           docker rm course_materials || true
           docker run -d --name course_materials -p 80:8000 \
+          -e DEBUG=True \
           -e SECRET_KEY=${SECRET_KEY} \
           -e DB_NAME="$DB_NAME" \
           -e DB_USER="$DB_USER" \
