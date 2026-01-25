@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -100,7 +102,8 @@ class CourseTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Course.objects.all().count(), 2)
 
-    def test_course_update(self):
+    @patch("materials.tasks.send_course_update_notification.delay")
+    def test_course_update(self, mock_delay):
         url = reverse("materials:course-detail", args=(self.course.pk,))
         data = {
             "name": "Тестовый курс 2",
@@ -109,6 +112,13 @@ class CourseTestCase(APITestCase):
         data = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get("name"), "Тестовый курс 2")
+
+        # Проверка, что задача Celery была вызвана (но не выполнялась)
+        mock_delay.assert_called_once_with(course_id=self.course.pk)
+
+        # Дополнительно: проверить сохранение в БД
+        self.course.refresh_from_db()
+        self.assertEqual(self.course.name, "Тестовый курс 2")
 
     def test_course_delete(self):
         url = reverse("materials:course-detail", args=(self.course.pk,))

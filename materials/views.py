@@ -16,7 +16,7 @@ from materials.serializers import (
     LessonSerializer,
 )
 from materials.tasks import send_course_update_notification
-from users.permissions import IsModerator, IsOwner
+from users.permissions import IsModerator, IsOwner, IsNotModerator
 
 
 class CourseViewSet(ModelViewSet):
@@ -44,24 +44,22 @@ class CourseViewSet(ModelViewSet):
         update_details = "В курс внесены обновления. Проверьте новые материалы!"
 
         # Запускаем асинхронную рассылку
-        send_course_update_notification.delay(
-            course_id=updated_course.id
-        )
+        send_course_update_notification.delay(course_id=updated_course.id)
 
     def get_permissions(self):
         if self.action == "create":
-            self.permission_classes = (~IsModerator,)
+            self.permission_classes = (IsNotModerator,)
         elif self.action in ["update", "retrieve"]:
             self.permission_classes = (IsModerator | IsOwner,)
         elif self.action == "destroy":
-            self.permission_classes = (~IsModerator | IsOwner,)
+            self.permission_classes = (IsNotModerator | IsOwner,)
         return super().get_permissions()
 
 
 class LessonCreateAPIView(CreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = (~IsModerator, IsAuthenticated)
+    permission_classes = (IsNotModerator, IsAuthenticated)
 
     def perform_create(self, serializer):
         lesson = serializer.save()
@@ -98,5 +96,5 @@ class LessonDestroyAPIView(DestroyAPIView):
     serializer_class = LessonSerializer
     permission_classes = (
         IsAuthenticated,
-        IsOwner | ~IsModerator,
+        IsOwner | IsNotModerator,
     )

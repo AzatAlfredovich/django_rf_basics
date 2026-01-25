@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: postgres
+    container_name: db
     env_file:
       - .env
     environment:
@@ -43,6 +43,7 @@ services:
         condition: service_started
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles #2301
 
   celery:
     build: .
@@ -72,6 +73,18 @@ services:
     volumes:
       - .:/app
 
+  nginx: #2301
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles  # Монтируем статику из backend
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
   redis_data:
+  static_volume: #2301

@@ -35,6 +35,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "lesson",
     )
 
+
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
